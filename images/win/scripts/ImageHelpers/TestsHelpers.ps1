@@ -12,9 +12,14 @@ function Get-CommandResult {
     }
 }
 
+# Gets path to the tool, analogue of 'which tool'
+function Get-WhichTool($tool) {
+    return (Get-Command $tool).Path
+}
+
 # Gets value of environment variable by the name
 function Get-EnvironmentVariable($variable) {
-    return [System.Environment]::GetEnvironmentVariable($variable)
+    return [System.Environment]::GetEnvironmentVariable($variable, "Machine")
 }
 
 # Update environment variables without reboot
