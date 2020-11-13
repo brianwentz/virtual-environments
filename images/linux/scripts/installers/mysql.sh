@@ -1,11 +1,8 @@
-#!/bin/bash
+#!/bin/bash -e
 ################################################################################
 ##  File:  mysql.sh
 ##  Desc:  Installs MySQL Client
 ################################################################################
-
-## Source the helpers for use with the script
-source $HELPER_SCRIPTS/document.sh
 
 export ACCEPT_EULA=Y
 
@@ -46,17 +43,9 @@ if ! command -v mysql; then
     exit 1
 fi
 
-set -e
 mysql -vvv -e 'CREATE DATABASE smoke_test' -uroot -proot
 mysql -vvv -e 'DROP DATABASE smoke_test' -uroot -proot
 set +e
-
-# Document what was added to the image
-echo "Lastly, documenting what we added to the metadata file"
-DocumentInstalledItem "MySQL ($(mysql --version))"
-DocumentInstalledItem "MySQL Server (user:root password:root)"
-DocumentInstalledItem "MS SQL Server Client Tools"
-DocumentInstalledItem "MySQL service is disabled by default. Use the following command as a part of your job to start the service: 'sudo systemctl start mysql.service'"
 
 # Disable mysql.service
 systemctl is-active --quiet mysql.service && systemctl stop mysql.service

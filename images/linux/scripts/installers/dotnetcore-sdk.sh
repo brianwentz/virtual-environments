@@ -1,24 +1,17 @@
-#!/bin/bash
+#!/bin/bash -e
 ################################################################################
 ##  File:  dotnetcore-sdk.sh
 ##  Desc:  Installs .NET Core SDK
 ################################################################################
 
 source $HELPER_SCRIPTS/etc-environment.sh
-source $HELPER_SCRIPTS/document.sh
 source $HELPER_SCRIPTS/install.sh
 source $HELPER_SCRIPTS/os.sh
 
 # Ubuntu 20 doesn't support EOL versions
-if isUbuntu20 ; then
-    LATEST_DOTNET_PACKAGES=("dotnet-sdk-3.1")
-    release_urls=("https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/2.1/releases.json" "https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/3.1/releases.json")
-fi
-
-if isUbuntu16 || isUbuntu18 ; then
-    LATEST_DOTNET_PACKAGES=("dotnet-sdk-3.0" "dotnet-sdk-3.1")
-    release_urls=("https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/2.1/releases.json" "https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/3.0/releases.json" "https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/3.1/releases.json")
-fi
+toolset="$INSTALLER_SCRIPT_FOLDER/toolset.json"
+LATEST_DOTNET_PACKAGES=$(jq -r '.dotnet.aptPackages[]' $toolset)
+versions=$(jq -r '.dotnet.versions[]' $toolset)
 
 mksamples()
 {
@@ -26,7 +19,6 @@ mksamples()
     sample=$2
     mkdir "$sdk"
     cd "$sdk" || exit
-    set -e
     dotnet help
     dotnet new globaljson --sdk-version "$sdk"
     dotnet new "$sample"
@@ -36,8 +28,6 @@ mksamples()
     cd .. || exit
     rm -rf "$sdk"
 }
-
-set -e
 
 # Disable telemetry
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
@@ -54,7 +44,8 @@ done
 
 # Get list of all released SDKs from channels which are not end-of-life or preview
 sdks=()
-for release_url in ${release_urls[@]}; do
+for version in ${versions[@]}; do
+    release_url="https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/${version}/releases.json"
     echo "${release_url}"
     releases=$(curl "${release_url}")
     sdks=("${sdks[@]}" $(echo "${releases}" | jq '.releases[]' | jq '.sdk.version'))
@@ -84,7 +75,6 @@ for tarball in *.tar.gz; do
 done
 rm urls
 
-DocumentInstalledItem ".NET Core SDK:"
 # Smoke test each SDK
 for sdk in $sortedSdks; do
     mksamples "$sdk" "console"
@@ -93,7 +83,6 @@ for sdk in $sortedSdks; do
     mksamples "$sdk" "web"
     mksamples "$sdk" "mvc"
     mksamples "$sdk" "webapi"
-    DocumentInstalledItemIndent "$sdk"
 done
 
 # NuGetFallbackFolder at /usr/share/dotnet/sdk/NuGetFallbackFolder is warmed up by smoke test

@@ -59,7 +59,8 @@ $markdown += New-MDList -Style Unordered -Lines @(
     (Get-RubyGemsVersion),
     (Get-HelmVersion),
     (Get-ComposerVersion),
-    (Get-NugetVersion)
+    (Get-NugetVersion),
+    (Get-PipxVersion)
 )
 
 $markdown += New-MDHeader "Project Management" -Level 3
@@ -72,11 +73,11 @@ $markdown += New-MDList -Style Unordered -Lines @(
 
 $markdown += New-MDHeader "Tools" -Level 3
 $markdown += New-MDList -Style Unordered -Lines @(
-    (Get-AzCosmosDBEmulatorVersion),
     (Get-AzCopyVersion),
     (Get-BazelVersion),
     (Get-BazeliskVersion),
     (Get-CMakeVersion),
+    (Get-CodeQLBundleVersion),
     (Get-RVersion),
     (Get-DockerVersion),
     (Get-DockerComposeVersion),
@@ -88,14 +89,12 @@ $markdown += New-MDList -Style Unordered -Lines @(
     (Get-KubectlVersion),
     (Get-KindVersion),
     (Get-MinGWVersion),
-    (Get-MySQLVersion),
     (Get-MercurialVersion),
     (Get-NSISVersion),
     (Get-NewmanVersion),
     (Get-OpenSSLVersion),
     (Get-PackerVersion),
-    (Get-SQLPSVersion),
-    (Get-SQLServerPSVersion),
+    (Get-PulumiVersion),
     (Get-SVNVersion),
     (Get-GHCVersion),
     (Get-CabalVersion),
@@ -111,6 +110,7 @@ $markdown += New-MDHeader "CLI Tools" -Level 3
 $markdown += New-MDList -Style Unordered -Lines @(
     (Get-AzureCLIVersion),
     (Get-AzureDevopsExtVersion),
+    (Get-AZDSVersion),
     (Get-AWSCLIVersion),
     (Get-AWSSAMVersion),
     (Get-AWSSessionManagerVersion),
@@ -161,6 +161,15 @@ $markdown += New-MDNewLine
 
 $markdown += New-MDHeader "Databases" -Level 3
 $markdown += Build-DatabasesMarkdown
+$markdown += New-MDNewLine
+
+$markdown += New-MDHeader "Database tools" -Level 3
+$markdown += New-MDList -Style Unordered -Lines @(
+    (Get-AzCosmosDBEmulatorVersion),
+    (Get-DacFxVersion),
+    (Get-SQLPSVersion),
+    (Get-MySQLVersion)
+)
 $markdown += New-MDNewLine
 
 $vs = Get-VisualStudioVersion
@@ -221,32 +230,13 @@ $markdown += Get-PowerShellModules | New-MDTable
 $markdown += New-MDNewLine
 
 # Android section
-$androidInstalledPackages = Get-AndroidInstalledPackages
-
-$markdown += New-MDHeader "Android SDK Tools" -Level 3
-$androidSDKTools = $androidInstalledPackages | Where-Object { $_ -Match "Android SDK Tools" -or $_ -Match "Android SDK Platform-Tools" }
-$markdown += Build-AndroidSDKToolsTable $androidSDKTools | New-MDTable
+$markdown += New-MDHeader "Android" -Level 3
+$markdown += Build-AndroidTable | New-MDTable
 $markdown += New-MDNewLine
 
-$markdown += New-MDHeader "Android SDK Platforms" -Level 3
-$androidSDKPlatforms = $androidInstalledPackages | Where-Object { $_ -Match "Android SDK Platform " }
-$markdown += New-MDInlineCode -Text (Get-AndroidComponentLocation -ComponentName "platforms")
-$markdown += New-MDNewLine
-$markdown += Build-AndroidSDKPlatformTable $androidSDKPlatforms | New-MDTable
-$markdown += New-MDNewLine
-
-$markdown += New-MDHeader "Android SDK Build-Tools" -Level 3
-$androidSDKBuildTools = $androidInstalledPackages | Where-Object { $_ -Match "Android SDK Build-Tools" }
-$markdown += New-MDInlineCode -Text (Get-AndroidComponentLocation -ComponentName "build-tools")
-$markdown += New-MDNewLine
-$markdown += Build-AndroidSDKBuildtoolsTable $androidSDKBuildTools | New-MDTable
-$markdown += New-MDNewLine
-
-$markdown += New-MDHeader "Android Extra Packages" -Level 3
-$markdown += Build-AndroidExtraPackagesTable $androidInstalledPackages | New-MDTable
-$markdown += New-MDNewLine
-
+# Docker images section
 $markdown += New-MDHeader "Cached Docker images" -Level 3
-$markdown += New-MDList -Style Unordered -Lines @(Get-CachedDockerImages)
+$markdown += Get-CachedDockerImagesTableData | New-MDTable
+$markdown += New-MDNewLine
 
 $markdown | Out-File -FilePath "C:\InstalledSoftware.md"
