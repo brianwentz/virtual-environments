@@ -51,7 +51,8 @@ function Get-RustupVersion {
 
 function Get-VcpkgVersion {
     $vcpkgVersion = Run-Command "vcpkg version" | Select-Object -First 1 | Take-Part -Part 5 | Take-Part -Part 0 -Delimiter "-"
-    return "Vcpkg ${vcpkgVersion}"
+    $commitId = git -C "/usr/local/share/vcpkg" rev-parse --short HEAD
+    return "Vcpkg $vcpkgVersion (build from master <$commitId>)"
 }
 
 function Get-GccVersion {
@@ -71,8 +72,12 @@ function Get-FortranVersion {
 }
 
 function Get-ClangLLVMVersion {
-    $clangLLVMVersion = Run-Command "$(brew --prefix llvm)/bin/clang --version" | Select-Object -First 1 | Take-Part -Part 2
-    "Clang/LLVM $clangLLVMVersion"
+    $locationsList = @("$((Get-Command clang).Source)", '$(brew --prefix llvm)/bin/clang')
+    $locationsList | Foreach-Object {
+        (Run-Command "${_} --version" | Out-String) -match "(?<version>\d+\.\d+\.\d+)" | Out-Null
+        $version = $Matches.version
+        "Clang/LLVM $version " + $(if(${_} -Match "brew") {"is available on ``${_}``"} else {"is default"})
+    }
 }
 
 function Get-NVMVersion {

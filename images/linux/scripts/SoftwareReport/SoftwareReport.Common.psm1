@@ -49,6 +49,11 @@ function Get-NodeVersion {
     return "Node $nodeVersion"
 }
 
+function Get-PerlVersion {
+    $version = $(perl -e 'print substr($^V,1)')
+    return "Perl $version"
+}
+
 function Get-PythonVersion {
     $result = Get-CommandResult "python --version"
     $version = $result.Output | Take-OutputPart -Part 1
@@ -133,7 +138,8 @@ function Get-VcpkgVersion {
     $result = Get-CommandResult "vcpkg version"
     $result.Output -match "version (?<version>\d+\.\d+\.\d+)" | Out-Null
     $vcpkgVersion = $Matches.version
-    return "Vcpkg $vcpkgVersion"
+    $commitId = git -C "/usr/local/share/vcpkg" rev-parse --short HEAD
+    return "Vcpkg $vcpkgVersion (build from master <$commitId>)"
 }
 
 function Get-AntVersion {
