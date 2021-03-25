@@ -21,7 +21,8 @@
             "platform" : "linux",
             "versions": [
                 "2.7",
-                "3.6"
+                "3.6",
+                "3.7"
             ]
         },
         {
@@ -42,9 +43,10 @@
             "platform" : "linux",
             "versions": [
                 "1.14.*",
-                "1.15.*"
+                "1.15.*",
+                "1.16.*"
             ],
-            "default": "1.14.*"
+            "default": "1.15.*"
         },
         {
             "name": "Ruby",
@@ -85,27 +87,36 @@
         "additional_tools": [
             "cmake;3.10.2.4988404",
             "patcher;v4",
-            "ndk-bundle",
             "platform-tools",
             "cmdline-tools;latest"
-        ]
+        ],
+        "ndk": {
+            "lts": "21",
+            "latest": "22"
+        }
     },
     "powershellModules": [
         {"name": "MarkdownPS"},
-        {"name": "Pester"}
+        {"name": "Pester"},
+        {"name": "PSScriptAnalyzer"}
     ],
     "azureModules": [
         {
             "name": "az",
+            "url" : "https://raw.githubusercontent.com/Azure/az-ps-module-versions/main/versions-manifest.json",
             "versions": [
-                "3.8.0",
-                "4.8.0"
+                "5.5.0"
+            ],
+            "zip_versions": [
+                "3.1.0",
+                "4.4.0"
             ]
         }
     ],
     "apt": {
         "common_packages": [
             "build-essential",
+            "chromium-browser",
             "dbus",
             "dnsutils",
             "dpkg",
@@ -147,9 +158,12 @@
             "zsync"
         ],
         "cmd_packages": [
+            "acl",
+            "binutils",
             "bison",
             "brotli",
             "bzip2",
+            "coreutils",
             "curl",
             "file",
             "flex",
@@ -159,6 +173,7 @@
             "m4",
             "mediainfo",
             "netcat",
+            "net-tools",
             "p7zip-full",
             "parallel",
             "pass",
@@ -189,8 +204,6 @@
             "buildpack-deps:buster",
             "debian:8",
             "debian:9",
-            "jekyll/builder",
-            "mcr.microsoft.com/azure-pipelines/node8-typescript",
             "node:10",
             "node:12",
             "node:10-alpine",
@@ -206,6 +219,10 @@
         {
             "package": "aws-sam-cli",
             "cmd": "sam"
+        },
+        {
+            "package": "ansible-base",
+            "cmd": "ansible"
         }
     ],
     "dotnet": {
@@ -223,7 +240,8 @@
         "versions": [
             "8",
             "9",
-            "10"
+            "10",
+            "11"
         ],
         "default_version": "10"
     },
@@ -247,5 +265,54 @@
             "7.4",
             "8.0"
         ]
-    }
+    },
+    "rubygems": [
+        {"name": "fastlane"}
+    ],
+    "node_modules": [
+        {
+            "name": "grunt",
+            "command": "grunt"
+        },
+        {
+            "name": "gulp",
+            "command": "gulp"
+        },
+        {
+            "name": "n",
+            "command": "n"
+        },
+        {
+            "name": "parcel-bundler",
+            "command": "parcel"
+        },
+        {
+            "name": "typescript",
+            "command": "tsc"
+        },
+        {
+            "name": "newman",
+            "command": "newman"
+        },
+        {
+            "name": "vercel",
+            "command": "vercel"
+        },
+        {
+            "name": "webpack",
+            "command": "webpack"
+        },
+        {
+            "name": "webpack-cli",
+            "command": "webpack-cli"
+        },
+        {
+            "name": "netlify-cli",
+            "command": "netlify"
+        },
+        {
+            "name": "lerna",
+            "command": "lerna"
+        }
+    ]
 }

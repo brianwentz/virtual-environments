@@ -48,6 +48,10 @@ function Get-NodeVersion {
     return "Node $nodeVersion"
 }
 
+function Get-OpensslVersion {
+    return $(openssl version)
+}
+
 function Get-PerlVersion {
     $version = $(perl -e 'print substr($^V,1)')
     return "Perl $version"
@@ -84,6 +88,11 @@ function Get-JuliaVersion {
     return "Julia $juliaVersion"
 }
 
+function Get-LernaVersion {
+    $version = lerna -v
+    return "Lerna $version"
+}
+
 function Get-HomebrewVersion {
     $result = Get-CommandResult "brew -v"
     $result.Output -match "Homebrew (?<version>\d+\.\d+\.\d+)" | Out-Null
@@ -91,11 +100,18 @@ function Get-HomebrewVersion {
     return "Homebrew $version"
 }
 
+function Get-CpanVersion {
+    $result = Get-CommandResult "cpan --version"
+    $result.Output -match "version (?<version>\d+\.\d+) " | Out-Null
+    $cpanVersion = $Matches.version
+    return "cpan $cpanVersion"
+}
+
 function Get-GemVersion {
     $result = Get-CommandResult "gem --version"
     $result.Output -match "(?<version>\d+\.\d+\.\d+)" | Out-Null
     $gemVersion = $Matches.version
-    return "Gem $gemVersion"
+    return "RubyGems $gemVersion"
 }
 
 function Get-MinicondaVersion {
@@ -212,6 +228,12 @@ function Get-GHCVersion {
     return "GHC $ghcVersion"
 }
 
+function Get-GHCupVersion {
+    $(ghcup --version) -match "version v(?<version>\d+(\.\d+){2,})" | Out-Null
+    $ghcVersion = $Matches.version
+    return "GHCup $ghcVersion"
+}
+
 function Get-CabalVersion {
     $(cabal --version | Out-String) -match "cabal-install version (?<version>\d+\.\d+\.\d+\.\d+)" | Out-Null
     $cabalVersion = $Matches.version
@@ -261,14 +283,15 @@ function Get-CachedDockerImages {
 }
 
 function Get-CachedDockerImagesTableData {
-    return (sudo docker images --digests --format "*{{.Repository}}:{{.Tag}}|{{.Digest}} |{{.CreatedAt}}").Split("*")     | Where-Object { $_ } |  ForEach-Object {
-      $parts=$_.Split("|")
-      [PSCustomObject] @{
-             "Repository:Tag" = $parts[0]
-              "Digest" = $parts[1]
-              "Created" = $parts[2].split(' ')[0]
-         }
-    }
+    $allImages = sudo docker images --digests --format "*{{.Repository}}:{{.Tag}}|{{.Digest}} |{{.CreatedAt}}"
+    $allImages.Split("*") | Where-Object { $_ } | ForEach-Object {
+        $parts = $_.Split("|")
+        [PSCustomObject] @{
+            "Repository:Tag" = $parts[0]
+            "Digest" = $parts[1]
+            "Created" = $parts[2].split(' ')[0]
+        }
+    } | Sort-Object -Property "Repository:Tag"
 }
 
 function Get-AptPackages {
@@ -297,5 +320,23 @@ function Build-GraalVMTable {
     return [PSCustomObject] @{
         "Version" = $version
         "Environment variables" = $envVariables
+    }
+}
+
+function Build-PackageManagementEnvironmentTable {
+    return @(
+        @{
+            "Name" = "CONDA"
+            "Value" = $env:CONDA
+        },
+        @{
+            "Name" = "VCPKG_INSTALLATION_ROOT"
+            "Value" = $env:VCPKG_INSTALLATION_ROOT
+        }
+    ) | ForEach-Object {
+        [PSCustomObject] @{
+            "Name" = $_.Name
+            "Value" = $_.Value
+        }
     }
 }
