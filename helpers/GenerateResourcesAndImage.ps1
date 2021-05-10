@@ -123,11 +123,6 @@ Function GenerateResourcesAndImage {
         [string] $VnetName
     )
 
-    if ([string]::IsNullOrEmpty($GithubFeedToken)) {
-        Write-Error "'-GithubFeedToken' parameter is not specified. You have to specify valid GitHub PAT to download tool packages from GitHub Package Registry"
-        exit 1
-    }
-
     $builderScriptPath = Get-PackerTemplatePath -RepositoryRoot $ImageGenerationRepositoryRoot -ImageType $ImageType
     $ServicePrincipalClientSecret = $env:UserName + [System.GUID]::NewGuid().ToString().ToUpper();
     $InstallPassword = $env:UserName + [System.GUID]::NewGuid().ToString().ToUpper();
@@ -245,7 +240,6 @@ Function GenerateResourcesAndImage {
         -var "resource_group=$($ResourceGroupName)" `
         -var "storage_account=$($storageAccountName)" `
         -var "install_password=$($InstallPassword)" `
-        -var "github_feed_token=$($GithubFeedToken)" `
         -var "private_virtual_network_with_public_ip=false" `
         -var "virtual_network_name=$($VnetName)" `
         -var "allowed_inbound_ip_addresses=$($AgentIp)" `
