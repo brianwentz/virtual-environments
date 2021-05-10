@@ -61,7 +61,8 @@ function Install-JavaFromAdoptOpenJDK {
         -and $_.binary.image_type -eq "jdk"
     }
     $downloadUrl = $asset.binary.package.link
-    $fullJavaVersion = $asset.version.semver
+    # We have to replace '+' sign in the version to '-' due to the issue with incorrect path in Android builds https://github.com/actions/virtual-environments/issues/3014
+    $fullJavaVersion = $asset.version.semver -replace '\+', '-'
 
     # Download and extract java binaries to temporary folder
     $archivePath = Start-DownloadWithRetry -Url $downloadUrl -Name $([IO.Path]::GetFileName($downloadUrl))
@@ -104,7 +105,7 @@ foreach ($jdkVersion in $jdkVersions) {
 # Install Java tools
 # Force chocolatey to ignore dependencies on Ant and Maven or else they will download the Oracle JDK
 Choco-Install -PackageName ant -ArgumentList "-i"
-Choco-Install -PackageName maven -ArgumentList "-i", "--version=3.6.3"
+Choco-Install -PackageName maven -ArgumentList "-i", "--version=3.8.1"
 Choco-Install -PackageName gradle
 
 # Move maven variables to Machine. They may not be in the environment for this script so we need to read them from the registry.

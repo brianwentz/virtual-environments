@@ -20,27 +20,53 @@ function Get-FortranVersions {
     return "GNU Fortran " + ($fortranVersions -Join ", ")
 }
 
-function Get-ClangVersions {
-    $clangVersions = @()
+function Get-ClangToolVersions {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $ToolName,
+        [string] $VersionPattern = "\d+\.\d+\.\d+)-"
+    )
+
     $result = Get-CommandResult "apt list --installed" -Multiline
-    $clangVersions = $result.Output | Where-Object { $_ -match "^clang-\d+"} | ForEach-Object {
+    $toolVersions = $result.Output | Where-Object { $_ -match "^${ToolName}-\d+"} | ForEach-Object {
         $clangCommand = ($_ -Split "/")[0]
-        Invoke-Expression "$clangCommand --version" | Where-Object { $_ -match "clang version" } | ForEach-Object {
-            $_ -match "clang version (?<version>\d+\.\d+\.\d+)-" | Out-Null
+        Invoke-Expression "$clangCommand --version" | Where-Object { $_ -match "${ToolName} version" } | ForEach-Object {
+            $_ -match "${ToolName} version (?<version>${VersionPattern}" | Out-Null
             $Matches.version
-        }
-    } | Sort-Object {[Version]$_}
-    return "Clang " + ($clangVersions -Join ", ")
+            }
+        } | Sort-Object {[Version]$_}
+
+    return $toolVersions -Join ", "
 }
 
+function Get-ClangVersions {
+    $clangVersions = Get-ClangToolVersions -ToolName "clang"
+    return "Clang " + $clangVersions
+}
+
+function Get-ClangFormatVersions {
+    $clangFormatVersions = Get-ClangToolVersions -ToolName "clang-format"
+    return "Clang-format " + $clangFormatVersions
+}
+
+
 function Get-ErlangVersion {
-    $version = (erl -eval 'erlang:display(erlang:system_info(version)), halt().' -noshell).Trim('"')
-    return "Erlang $version"
+    $erlangVersion = (erl -eval '{ok, Version} = file:read_file(filename:join([code:root_dir(), "releases", erlang:system_info(otp_release), ''OTP_VERSION''])), io:fwrite(Version), halt().' -noshell)
+    $shellVersion = (erl -eval 'erlang:display(erlang:system_info(version)), halt().' -noshell).Trim('"')
+    return "Erlang $erlangVersion (Eshell $shellVersion)"
 }
 
 function Get-MonoVersion {
     $monoVersion = mono --version | Out-String | Take-OutputPart -Part 4
     return "Mono $monoVersion"
+}
+
+function Get-MsbuildVersion {
+    $msbuildVersion = msbuild -version | Select-Object -Last 1
+    $result = Select-String -Path (Get-Command msbuild).Source -Pattern "msbuild"
+    $result -match "(?<path>\/\S*\.dll)" | Out-Null
+    $msbuildPath = $Matches.path
+    return "MSBuild $msbuildVersion (from $msbuildPath)"
 }
 
 function Get-NodeVersion {
@@ -225,7 +251,8 @@ function Build-PHPTable {
 function Get-GHCVersion {
     $(ghc --version) -match "version (?<version>\d+\.\d+\.\d+)" | Out-Null
     $ghcVersion = $Matches.version
-    return "GHC $ghcVersion"
+    $aptSourceRepo = Get-AptSourceRepository -PackageName "ghc"
+    return "GHC $ghcVersion (apt source repository: $aptSourceRepo)"
 }
 
 function Get-GHCupVersion {
@@ -295,10 +322,20 @@ function Get-CachedDockerImagesTableData {
 }
 
 function Get-AptPackages {
-    $toolsetJson = Get-ToolsetContent
-    $apt = $toolsetJson.apt
-    $pkgs = ($apt.common_packages + $apt.cmd_packages | Sort-Object) -join ", "
-    return $pkgs
+    $apt = (Get-ToolsetContent).Apt
+    $output = @()
+    ForEach ($pkg in ($apt.common_packages + $apt.cmd_packages)) {
+        $version = $(dpkg-query -W -f '${Version}' $pkg)
+        if ($Null -eq $version) {
+            $version = $(dpkg-query -W -f '${Version}' "$pkg*")
+        }
+
+        $output += [PSCustomObject] @{
+            Name    = $pkg
+            Version = $version
+        }
+    }
+    return ($output | Sort-Object Name)
 }
 
 function Get-PipxVersion {

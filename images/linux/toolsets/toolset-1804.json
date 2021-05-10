@@ -90,6 +90,7 @@
         ],
         "additional_tools": [
             "cmake;3.10.2.4988404",
+            "cmake;3.18.1",
             "patcher;v4",
             "platform-tools",
             "cmdline-tools;latest"
@@ -107,7 +108,7 @@
             "name": "az",
             "url" : "https://raw.githubusercontent.com/Azure/az-ps-module-versions/main/versions-manifest.json",
             "versions": [
-                "5.5.0"
+                "5.7.0"
             ],
             "zip_versions": [
                 "3.1.0",
@@ -146,6 +147,7 @@
             "openssh-client",
             "p7zip-rar",
             "pkg-config",
+            "python-setuptools",
             "rpm",
             "texinfo",
             "tk",
@@ -154,7 +156,6 @@
             "xorriso",
             "xvfb",
             "xz-utils",
-            "zstd",
             "zsync"
         ],
         "cmd_packages": [
@@ -183,6 +184,7 @@
             "sqlite3",
             "sphinxsearch",
             "ssh",
+            "sshpass",
             "subversion",
             "sudo",
             "swig",
@@ -193,21 +195,27 @@
             "zip"
         ]
     },
+    "brew": [
+        {"name": "zstd"}
+    ],
     "docker": {
         "images": [
-            "alpine:3.7",
-            "alpine:3.8",
-            "alpine:3.9",
-            "alpine:3.10",
+            "alpine:3.11",
+            "alpine:3.12",
+            "alpine:3.13",
             "buildpack-deps:stretch",
             "buildpack-deps:buster",
-            "debian:8",
             "debian:9",
+            "debian:10",
             "node:10",
             "node:12",
+            "node:14",
             "node:10-alpine",
             "node:12-alpine",
-            "ubuntu:14.04"
+            "node:14-alpine",
+            "ubuntu:16.04",
+            "ubuntu:18.04",
+            "ubuntu:20.04"
         ]
     },
     "pipx": [
@@ -237,25 +245,22 @@
     },
     "clang": {
         "versions": [
-            "6.0",
-            "8",
             "9"
         ],
         "default_version": "9"
     },
     "gcc": {
         "versions": [
-            "g++-7",
-            "g++-8",
             "g++-9",
-            "g++-10"
+            "g++-10",
+            "g++-11"
         ]
     },
     "gfortran": {
         "versions": [
-            "gfortran-8",
             "gfortran-9",
-            "gfortran-10"
+            "gfortran-10",
+            "gfortran-11"
         ]
     },
     "php": {
@@ -308,6 +313,10 @@
         {
             "name": "netlify-cli",
             "command": "netlify"
+        },
+        {
+            "name": "yarn",
+            "command": "yarn"
         }
     ]
 }

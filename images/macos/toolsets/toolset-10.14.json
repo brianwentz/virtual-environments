@@ -212,6 +212,7 @@
         ],
         "additional-tools": [
             "cmake;3.10.2.4988404",
+            "cmake;3.18.1",
             "cmdline-tools;latest"
         ],
         "ndk": {
@@ -223,7 +224,7 @@
         {
             "name": "Az",
             "versions": [
-                "4.8.0"
+                "5.7.0"
             ]
         },
         {"name": "MarkdownPS"},
@@ -251,6 +252,7 @@
             "parallel",
             "perl",
             "subversion",
+            "swiftformat",
             "xctool",
             "zstd"
         ],
